@@ -86,7 +86,7 @@ class _EditEventsPageState extends State<EditEventsPage> {
             },
             blendMode: BlendMode.dstIn,
             child: Container(
-              height: 200,
+              height: 700,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -97,11 +97,11 @@ class _EditEventsPageState extends State<EditEventsPage> {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
+                  bottomLeft: Radius.circular(128),
+                  bottomRight: Radius.circular(128),
                 ),
               ),
-              child: SafeArea(
+              child: const SafeArea(
                 child: Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),

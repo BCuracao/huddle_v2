@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                 },
                 blendMode: BlendMode.dstIn,
                 child: Container(
-                  height: 500,
+                  height: 625,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [

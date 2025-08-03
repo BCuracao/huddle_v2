@@ -61,8 +61,8 @@ class _GroupViewerState extends State<GroupViewer> {
                     Colors.tealAccent[400]!,
                     const Color.fromARGB(255, 122, 255, 222),
                   ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(128),
@@ -189,8 +189,8 @@ class _GroupViewerState extends State<GroupViewer> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       gradient: const LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
                                         colors: [
                                           Colors.white,
                                           Colors.white,
@@ -250,20 +250,23 @@ class _GroupViewerState extends State<GroupViewer> {
                                                               .waiting) {
                                                         return Row(
                                                           children: [
-                                                            Icon(Icons.people_outline,
+                                                            Icon(
+                                                                Icons
+                                                                    .people_outline,
                                                                 size: 16,
-                                                                color:
-                                                                    Colors.teal[600]),
+                                                                color: Colors
+                                                                    .teal[600]),
                                                             const SizedBox(
                                                                 width: 6),
                                                             Text(
                                                               'Loading members...',
                                                               style: TextStyle(
-                                                                color:
-                                                                    Colors.teal[600],
+                                                                color: Colors
+                                                                    .teal[600],
                                                                 fontSize: 14,
                                                                 fontStyle:
-                                                                    FontStyle.italic,
+                                                                    FontStyle
+                                                                        .italic,
                                                               ),
                                                             ),
                                                           ],
@@ -282,18 +285,24 @@ class _GroupViewerState extends State<GroupViewer> {
                                                             // Member count with icon
                                                             Row(
                                                               children: [
-                                                                Icon(Icons.people,
+                                                                Icon(
+                                                                    Icons
+                                                                        .people,
                                                                     size: 18,
-                                                                    color:
-                                                                        Colors.teal[700]),
+                                                                    color: Colors
+                                                                            .teal[
+                                                                        700]),
                                                                 const SizedBox(
                                                                     width: 6),
                                                                 Text(
                                                                   '${members.length} ${members.length == 1 ? 'Member' : 'Members'}',
-                                                                  style: TextStyle(
-                                                                    color:
-                                                                        Colors.teal[800],
-                                                                    fontSize: 16,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                            .teal[
+                                                                        800],
+                                                                    fontSize:
+                                                                        16,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w600,
@@ -306,53 +315,38 @@ class _GroupViewerState extends State<GroupViewer> {
                                                             // Show first 2 members with nice styling
                                                             ...members
                                                                 .take(2)
-                                                                .map((member) =>
-                                                                    Padding(
-                                                                      padding:
-                                                                          const EdgeInsets
+                                                                .map(
+                                                                    (member) =>
+                                                                        Padding(
+                                                                          padding: const EdgeInsets
                                                                               .only(
-                                                                          bottom:
-                                                                              3),
-                                                                      child:
-                                                                          Row(
-                                                                        children: [
-                                                                          Container(
-                                                                            width:
-                                                                                6,
-                                                                            height:
-                                                                                6,
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              color:
-                                                                                  Colors.teal[400],
-                                                                              shape:
-                                                                                  BoxShape.circle,
-                                                                            ),
-                                                                          ),
-                                                                          const SizedBox(
-                                                                              width:
-                                                                                  8),
-                                                                          Expanded(
-                                                                            child:
-                                                                                Text(
-                                                                              member.displayName ??
-                                                                                  'Unknown',
-                                                                              style:
-                                                                                  TextStyle(
-                                                                                color:
-                                                                                    Colors.teal[700],
-                                                                                fontSize:
-                                                                                    14,
-                                                                                fontWeight:
-                                                                                    FontWeight.w500,
+                                                                              bottom: 3),
+                                                                          child:
+                                                                              Row(
+                                                                            children: [
+                                                                              Container(
+                                                                                width: 6,
+                                                                                height: 6,
+                                                                                decoration: BoxDecoration(
+                                                                                  color: Colors.teal[400],
+                                                                                  shape: BoxShape.circle,
+                                                                                ),
                                                                               ),
-                                                                              overflow:
-                                                                                  TextOverflow.ellipsis,
-                                                                            ),
+                                                                              const SizedBox(width: 8),
+                                                                              Expanded(
+                                                                                child: Text(
+                                                                                  member.displayName ?? 'Unknown',
+                                                                                  style: TextStyle(
+                                                                                    color: Colors.teal[700],
+                                                                                    fontSize: 14,
+                                                                                    fontWeight: FontWeight.w500,
+                                                                                  ),
+                                                                                  overflow: TextOverflow.ellipsis,
+                                                                                ),
+                                                                              ),
+                                                                            ],
                                                                           ),
-                                                                        ],
-                                                                      ),
-                                                                    ))
+                                                                        ))
                                                                 .toList(),
                                                             if (members.length >
                                                                 2)
@@ -360,21 +354,21 @@ class _GroupViewerState extends State<GroupViewer> {
                                                                 padding:
                                                                     const EdgeInsets
                                                                         .only(
-                                                                    left:
-                                                                        14,
-                                                                    top:
-                                                                        2),
-                                                                child:
-                                                                    Text(
+                                                                        left:
+                                                                            14,
+                                                                        top: 2),
+                                                                child: Text(
                                                                   '+${members.length - 2} more',
                                                                   style:
                                                                       TextStyle(
-                                                                    color:
-                                                                        Colors.teal[600],
+                                                                    color: Colors
+                                                                            .teal[
+                                                                        600],
                                                                     fontSize:
                                                                         12,
                                                                     fontStyle:
-                                                                        FontStyle.italic,
+                                                                        FontStyle
+                                                                            .italic,
                                                                   ),
                                                                 ),
                                                               ),
@@ -383,20 +377,23 @@ class _GroupViewerState extends State<GroupViewer> {
                                                       }
                                                       return Row(
                                                         children: [
-                                                          Icon(Icons.person_add_outlined,
+                                                          Icon(
+                                                              Icons
+                                                                  .person_add_outlined,
                                                               size: 16,
-                                                              color:
-                                                                  Colors.grey[600]),
+                                                              color: Colors
+                                                                  .grey[600]),
                                                           const SizedBox(
                                                               width: 6),
                                                           Text(
                                                             'No members yet',
                                                             style: TextStyle(
-                                                              color:
-                                                                  Colors.grey[600],
+                                                              color: Colors
+                                                                  .grey[600],
                                                               fontSize: 14,
                                                               fontStyle:
-                                                                  FontStyle.italic,
+                                                                  FontStyle
+                                                                      .italic,
                                                             ),
                                                           ),
                                                         ],

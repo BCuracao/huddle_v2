@@ -33,7 +33,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<List<dynamic>> _preloadEventsForUser(String userId, String? userDisplayName) async {
+  Future<List<dynamic>> _preloadEventsForUser(
+      String userId, String? userDisplayName) async {
     // Find groups the user is a member of
     final userGroupsSnap = await FirebaseFirestore.instance
         .collection('users')
@@ -51,7 +52,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       for (final doc in eventsSnap.docs) {
         final data = doc.data();
         // Use dynamic or import Event if available
-        if (userDisplayName != null && (data['host'] == userDisplayName || (data['invitationStatus'] ?? {}).containsKey(userId))) {
+        if (userDisplayName != null &&
+            (data['host'] == userDisplayName ||
+                (data['invitationStatus'] ?? {}).containsKey(userId))) {
           events.add(data);
         }
       }
@@ -81,6 +84,20 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 children: [
                   // Hero image
                   Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.tealAccent[400]!,
+                          const Color.fromARGB(255, 255, 255, 255),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(128),
+                        bottomRight: Radius.circular(128),
+                      ),
+                    ),
                     height: 275,
                     width: 275,
                     margin: const EdgeInsets.only(bottom: 24),
