@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huddle/features/app/model/event.dart' as app_event;
 import 'package:huddle/features/app/presentation/widgets/global_bottom_app_bar_widget.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:huddle/features/app/presentation/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -62,7 +61,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF8FAFC), // Modern clean background
       extendBodyBehindAppBar: true,
       bottomNavigationBar: const GlobalBottomAppBarWidget(),
       floatingActionButton: FloatingActionButton(
@@ -80,389 +79,143 @@ class _HomePageState extends State<HomePage> {
       body: StreamBuilder<List<app_event.Event>>(
         stream: _eventsStream(onGroupIds: (ids) => _lastQueriedGroupIds = ids),
         builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error loading events: \n'
-                  'Group IDs: \n${_lastQueriedGroupIds.join(", ")}\n'
-                  'Error: \n${snapshot.error}'),
-            );
-          }
-          if (!snapshot.hasData ||
-              snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final events = snapshot.data!;
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+          final events = snapshot.data ?? [];
           if (events.isEmpty) {
             return Center(
               child: Text(
                   'No events found.\nGroup IDs: ${_lastQueriedGroupIds.join(", ")}'),
             );
           }
-          return Stack(
-            children: [
-              // Gradient Header
-              ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white,
-                      Colors.white.withOpacity(0.0),
-                    ],
-                    stops: const [1, 1.0],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.dstIn,
-                child: Container(
-                  height: 625,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.tealAccent[400]!,
-                        const Color.fromARGB(255, 122, 255, 222),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+
+          return CustomScrollView(
+            slivers: [
+              // Modern Compact Header
+              SliverAppBar(
+                expandedHeight: 220,
+                floating: false,
+                pinned: true,
+                backgroundColor: Colors.transparent,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFF1E3A8A), // Deep Blue - Trust & Reliability
+                          Color(0xFF8B5CF6), // Soft Purple - Social & Creative
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
+                      ),
                     ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
-                    ),
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 20.0),
-                      child: Stack(
-                        children: [
-                          // Invitations title and icon moved up
-                          const Positioned(
-                            top: 10,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Invitations',
+                                const Text(
+                                  'Your Events',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: -1.5,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: -0.5,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProfilePage(),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          // Profile button remains lower right
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 10, right: 8.0),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const ProfilePage(),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding: const EdgeInsets.all(8),
-                                  child: const Icon(Icons.person,
-                                      color: Colors.white, size: 28),
-                                ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Manage your invitations and events',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            // Quick Stats Row
+                            Row(
+                              children: [
+                                _buildQuickStat(
+                                  'Total',
+                                  '${events.length}',
+                                  Icons.event,
+                                ),
+                                const SizedBox(width: 16),
+                                _buildQuickStat(
+                                  'Attending',
+                                  '${events.where((e) => e.invitationStatus[_userId] == 'accepted').length}',
+                                  Icons.check_circle,
+                                ),
+                                const SizedBox(width: 16),
+                                _buildQuickStat(
+                                  'Hosting',
+                                  '${events.where((e) => e.host == _userDisplayName).length}',
+                                  Icons.star,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-              // Main Content
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(top: 160.0, left: 16, right: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: CardSwiper(
-                          padding: EdgeInsets.zero,
-                          cardsCount: events.length,
-                          numberOfCardsDisplayed: 1,
-                          cardBuilder: (context, index, _, __) {
-                            final event = events[index];
-                            final status = event.host == _userDisplayName
-                                ? 'host'
-                                : event.invitationStatus[_userId] ?? 'pending';
-                            Color iconColor;
-                            IconData icon;
-                            String statusText;
-                            switch (status) {
-                              case 'accepted':
-                                icon = Icons.check_circle;
-                                iconColor = Colors.green;
-                                statusText = 'You are attending';
-                                break;
-                              case 'declined':
-                                icon = Icons.cancel;
-                                iconColor = Colors.red;
-                                statusText = 'You declined';
-                                break;
-                              case 'host':
-                                icon = Icons.star;
-                                iconColor = Colors.blueAccent;
-                                statusText = 'You are the host';
-                                break;
-                              default:
-                                icon = Icons.hourglass_empty;
-                                iconColor = Colors.orange;
-                                statusText = 'Undecided';
-                            }
-                            final acceptedUsers = event.invitationStatus.entries
-                                .where((e) => e.value == 'accepted')
-                                .map((e) => e.key)
-                                .toList();
-                            final acceptedCount = event.invitationStatus.values
-                                .where((v) => v == 'accepted')
-                                .length;
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Material(
-                                  elevation: 10,
-                                  borderRadius: BorderRadius.circular(28),
-                                  child: Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(28),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // Placeholder for user/event image
-                                        ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(28),
-                                            topRight: Radius.circular(28),
-                                          ),
-                                          child: Container(
-                                            height: 220,
-                                            width: double.infinity,
-                                            color: Colors.grey[200],
-                                            child:
-                                                event.hostProfileUrl != null &&
-                                                        event.hostProfileUrl!
-                                                            .isNotEmpty
-                                                    ? Image.network(
-                                                        event.hostProfileUrl!,
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                    : const Icon(Icons.person,
-                                                        size: 90,
-                                                        color: Colors.grey),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(24.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      event.title,
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 24,
-                                                        color: Colors.teal[900],
-                                                        letterSpacing: 0.5,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Icon(icon,
-                                                      color: iconColor,
-                                                      size: 24),
-                                                  // Cancel button for host
-                                                  if (event.host ==
-                                                      _userDisplayName) ...[
-                                                    const SizedBox(width: 8),
-                                                    GestureDetector(
-                                                      onTap: () =>
-                                                          _showCancelEventDialog(
-                                                              event),
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(6),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.red
-                                                              .withOpacity(0.1),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(12),
-                                                        ),
-                                                        child: const Icon(
-                                                          Icons.close,
-                                                          color: Colors.red,
-                                                          size: 20,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                '${event.host}, ${DateFormat('yyyy-MM-dd – kk:mm').format(event.dateTime)}',
-                                                style: TextStyle(
-                                                  color: Colors.teal[700],
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              if (event.description.isNotEmpty)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8.0),
-                                                  child: Text(
-                                                    event.description,
-                                                    style: const TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors.black87),
-                                                    maxLines: 3,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(Icons.people,
-                                                        color: Colors.green,
-                                                        size: 20),
-                                                    const SizedBox(width: 6),
-                                                    Text(
-                                                      'Accepted: $acceptedCount',
-                                                      style: const TextStyle(
-                                                        color: Colors.green,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              if (acceptedUsers.isNotEmpty)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8.0),
-                                                  child: Text(
-                                                    'Attending: ${acceptedUsers.join(", ")}',
-                                                    style: const TextStyle(
-                                                      color: Colors.green,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                statusText,
-                                                style: TextStyle(
-                                                  color: iconColor,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                // Swipe hint below event card
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 10.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.arrow_back,
-                                          color: Colors.green, size: 20),
-                                      SizedBox(width: 4),
-                                      Text('Accept',
-                                          style: TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 13)),
-                                      SizedBox(width: 14),
-                                      Icon(Icons.arrow_forward,
-                                          color: Colors.redAccent, size: 20),
-                                      SizedBox(width: 4),
-                                      Text('Decline',
-                                          style: TextStyle(
-                                              color: Colors.redAccent,
-                                              fontSize: 13)),
-                                      SizedBox(width: 14),
-                                      Icon(Icons.arrow_upward,
-                                          color: Colors.orange, size: 20),
-                                      Icon(Icons.arrow_downward,
-                                          color: Colors.orange, size: 20),
-                                      SizedBox(width: 4),
-                                      Text('Undecided',
-                                          style: TextStyle(
-                                              color: Colors.orange,
-                                              fontSize: 13)),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 28),
-                              ],
-                            );
-                          },
-                          onSwipe:
-                              (previousIndex, currentIndex, direction) async {
-                            final event = events[previousIndex];
-                            if (event.host == _userDisplayName) {
-                              return true;
-                            }
-                            if (direction == CardSwiperDirection.left) {
-                              _respondToEvent(event, 'declined');
-                            } else if (direction == CardSwiperDirection.right) {
-                              _respondToEvent(event, 'accepted');
-                            } else if (direction == CardSwiperDirection.top ||
-                                direction == CardSwiperDirection.bottom) {
-                              _respondToEvent(event, 'pending');
-                            }
-                            return true;
-                          },
-                        ),
-                      ),
-                    ],
+              // Events List
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final event = events[index];
+                      return _buildModernEventCard(event, index);
+                    },
+                    childCount: events.length,
                   ),
                 ),
               ),
@@ -473,88 +226,334 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildActionButton(
-      IconData icon, Color color, VoidCallback onPressed) {
-    return RawMaterialButton(
-      onPressed: onPressed,
-      elevation: 4.0,
-      fillColor: color.withOpacity(0.12),
-      shape: const CircleBorder(),
-      constraints: const BoxConstraints.tightFor(width: 56, height: 56),
-      child: Icon(icon, color: color, size: 28),
+  // Quick Stats Widget
+  Widget _buildQuickStat(String label, String value, IconData icon) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Future<void> _respondToEvent(app_event.Event event, String response) async {
+  // Modern Event Card
+  Widget _buildModernEventCard(app_event.Event event, int index) {
+    final status = event.host == _userDisplayName
+        ? 'host'
+        : event.invitationStatus[_userId] ?? 'pending';
+
+    Color iconColor;
+    IconData icon;
+    String statusText;
+
+    switch (status) {
+      case 'accepted':
+        icon = Icons.check_circle;
+        iconColor =
+            const Color(0xFF10B981); // Success Green - Positive psychology
+        statusText = 'You are attending';
+        break;
+      case 'declined':
+        icon = Icons.cancel;
+        iconColor = const Color(
+            0xFFEF4444); // Soft Red - Less aggressive than harsh red
+        statusText = 'You declined';
+        break;
+      case 'host':
+        icon = Icons.star;
+        iconColor =
+            const Color(0xFFF59E0B); // Warm Orange - Energy & importance
+        statusText = 'You are the host';
+        break;
+      default:
+        icon = Icons.hourglass_empty;
+        iconColor =
+            const Color(0xFF64748B); // Slate Grey - Professional neutral
+        statusText = 'Undecided';
+    }
+
+    final acceptedCount =
+        event.invitationStatus.values.where((v) => v == 'accepted').length;
+    final totalInvited = event.invitationStatus.length;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.1),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with gradient
+              Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      iconColor.withOpacity(0.8),
+                      iconColor.withOpacity(0.6),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              DateFormat('MMM dd, yyyy • h:mm a')
+                                  .format(event.dateTime),
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Status Icon
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          icon,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Status and attendance
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                statusText,
+                                style: TextStyle(
+                                  color: iconColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Accepted: $acceptedCount / $totalInvited',
+                                style: const TextStyle(
+                                  color: Color(0xFF64748B),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Action buttons
+                        if (status == 'pending') ...[
+                          _buildActionButton(
+                            Icons.close,
+                            const Color(0xFFEF4444),
+                            () => _respondToEvent(event, 'declined'),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildActionButton(
+                            Icons.check,
+                            const Color(0xFF10B981),
+                            () => _respondToEvent(event, 'accepted'),
+                          ),
+                        ] else if (status == 'host') ...[
+                          _buildActionButton(
+                            Icons.cancel_outlined,
+                            const Color(0xFFEF4444),
+                            () => _showCancelEventDialog(event),
+                          ),
+                        ],
+                      ],
+                    ),
+                    // Description if available
+                    if (event.description.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        event.description,
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+      IconData icon, Color color, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Icon(icon, color: color, size: 18),
+      ),
+    );
+  }
+
+  void _respondToEvent(app_event.Event event, String response) async {
     if (_userId == null) return;
+
     await FirebaseFirestore.instance
         .collection('groups')
         .doc(event.groupId)
         .collection('events')
         .doc(event.id)
-        .update({'invitationStatus.${_userId}': response});
+        .update({
+      'invitationStatus.$_userId': response,
+    });
   }
 
   void _showCancelEventDialog(app_event.Event event) {
-    final TextEditingController reasonController = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Cancel Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Are you sure you want to cancel "${event.title}"?'),
-              const SizedBox(height: 16),
-              TextField(
-                controller: reasonController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  hintText: 'Let your friends know why...',
-                  border: OutlineInputBorder(),
-                ),
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Event'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Are you sure you want to cancel "${event.title}"?'),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Reason for cancellation',
+                border: OutlineInputBorder(),
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Keep Event'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _cancelEvent(event, reasonController.text.trim());
+              maxLines: 3,
+              onChanged: (value) {
+                // Store the reason
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Cancel Event'),
             ),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Keep Event'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _cancelEvent(event, 'Event cancelled by host');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+            child: const Text('Cancel Event',
+                style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 
-  Future<void> _cancelEvent(app_event.Event event, String reason) async {
-    if (_userId == null || event.host != _userDisplayName) return;
+  void _cancelEvent(app_event.Event event, String reason) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
 
     try {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
-      // Create cancellation notification for all invitees
       final batch = FirebaseFirestore.instance.batch();
 
       // Add cancellation notification to each invitee's notifications

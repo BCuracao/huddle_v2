@@ -1,0 +1,16 @@
+🟢 Success Green (#10B981) - 'accepted' status
+Meaning: You are attending this event
+Psychology: Triggers positive emotions and achievement feelings
+
+🟠 Warm Orange (#F59E0B) - 'host' status
+Meaning: You are the host of this event
+Psychology: Conveys energy, importance, and leadership
+This is likely what you're seeing as "yellow-orange"!
+
+🔴 Soft Red (#EF4444) - 'declined' status
+Meaning: You declined this event
+Psychology: Clear but not aggressive rejection indicator
+
+⚪ Slate Grey (#64748B) - 'pending' status
+Meaning: You haven't responded yet
+Psychology: Professional, neutral, non-intrusive

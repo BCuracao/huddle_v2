@@ -36,13 +36,14 @@ class _GlobalBottomAppBarWidgetState extends State<GlobalBottomAppBarWidget> {
               padding: const EdgeInsets.all(6),
               decoration: isActive
                   ? BoxDecoration(
-                      color: Colors.tealAccent.withOpacity(0.7),
+                      color: const Color(0xFFF59E0B)
+                          .withOpacity(0.95), // Warm Orange - Energy & Action
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.07),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
+                          color: const Color(0xFFF59E0B).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     )
@@ -50,14 +51,18 @@ class _GlobalBottomAppBarWidgetState extends State<GlobalBottomAppBarWidget> {
               child: Icon(
                 icon,
                 size: 24,
-                color: isActive ? Colors.white : Colors.teal[900],
+                color: isActive
+                    ? Colors.white
+                    : const Color(0xFF2D2D2D), // Dark text
               ),
             ),
             const SizedBox(height: 0),
             Text(
               label,
               style: TextStyle(
-                color: isActive ? Colors.white : Colors.teal[900],
+                color: isActive
+                    ? Colors.white
+                    : const Color(0xFF2D2D2D), // Dark text
                 fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                 fontSize: 11,
               ),
@@ -69,10 +74,10 @@ class _GlobalBottomAppBarWidgetState extends State<GlobalBottomAppBarWidget> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
-            Colors.tealAccent[400]!,
-            const Color.fromARGB(255, 122, 255, 222),
+            Color(0xFF1E3A8A), // Deep Blue - Trust & Reliability
+            Color(0xFF8B5CF6), // Soft Purple - Social & Creative
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
