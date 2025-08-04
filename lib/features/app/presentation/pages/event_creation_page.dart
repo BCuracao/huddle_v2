@@ -6,8 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-import 'package:huddle/features/app/presentation/widgets/global_bottom_app_bar_widget.dart';
-
 class EventCreationPage extends StatefulWidget {
   const EventCreationPage({super.key});
 
@@ -23,6 +21,10 @@ class _EventCreationPageState extends State<EventCreationPage> {
 
   String? _selectedGroupId;
   String? _selectedGroupName;
+
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
 
   @override
   void initState() {
@@ -40,7 +42,6 @@ class _EventCreationPageState extends State<EventCreationPage> {
 
   _checkPermissions() async {
     if (await Permission.contacts.request().isGranted) {
-      // Load contacts if permission is granted
       _loadContacts();
     }
   }
@@ -53,545 +54,124 @@ class _EventCreationPageState extends State<EventCreationPage> {
     });
   }
 
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     _selectedGroupId = args != null ? args['groupId'] as String? : null;
     _selectedGroupName = args != null ? args['groupName'] as String? : null;
+    
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed("/events");
-        },
-        backgroundColor: Colors.transparent,
-        shape: const CircleBorder(),
-        elevation: 12,
-        child: Image.asset(
-          "assets/images/icons/icon_app_icon.png",
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const GlobalBottomAppBarWidget(),
-      backgroundColor: Colors.grey.shade50,
-      extendBody: true,
-      body: Stack(
-        children: [
-          // Modern gradient header matching home page
-          ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white,
-                  Colors.transparent,
-                ],
-                stops: [1, 1.0],
-              ).createShader(bounds);
-            },
-            blendMode: BlendMode.dstIn,
-            child: Container(
-              height: 700,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.tealAccent[400]!,
-                    const Color.fromARGB(255, 122, 255, 222),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: CustomScrollView(
+        slivers: [
+          // Modern SliverAppBar with gradient
+          SliverAppBar(
+            expandedHeight: 200,
+            floating: false,
+            pinned: true,
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF1E3A8A), // Deep Blue - Trust & reliability
+                      Color(0xFF8B5CF6), // Soft Purple - Social connection
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(128),
-                  bottomRight: Radius.circular(128),
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 20.0),
-                  child: Stack(
-                    children: [
-                      // Title positioned at top
-                      const Positioned(
-                        top: 10,
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Icon(
-                              Icons.event_note,
-                              color: Colors.white,
-                              size: 32,
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                            SizedBox(width: 12),
-                            Text(
-                              'Create Event',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.1,
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Create Event',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      // Subtitle
-                      const Positioned(
-                        top: 55,
-                        left: 44,
-                        child: Text(
-                          'Plan & Invite',
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Create Event',
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          'Let\'s bring people together',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          // Content area with proper spacing
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 200), // Space for header
-                // Modern floating form card
-                Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.teal.withOpacity(0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: Colors.teal.withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(28),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (_selectedGroupName != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.groups,
-                                  color: Color(0xFF3da8ad), size: 26),
-                              const SizedBox(width: 8),
-                              Text(
-                                _selectedGroupName!,
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.teal[900]),
-                              ),
-                            ],
-                          ),
-                        ),
-                      const Text(
-                        'Event Title',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.teal),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _titleController,
-                        style: const TextStyle(
-                            color: Colors.black87, fontWeight: FontWeight.w500),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                                color: Colors.grey[300]!, width: 1),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                                color: Colors.grey[300]!, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: Colors.teal, width: 2),
-                          ),
-                          hintText: 'Enter event name',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                        ),
-                      ),
-                      const SizedBox(height: 0),
-                      const Text(
-                        'Event Description',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.teal),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _descriptionController,
-                        maxLines: 3,
-                        style: const TextStyle(
-                            color: Colors.black87, fontWeight: FontWeight.w500),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                                color: Colors.grey[300]!, width: 1),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                                color: Colors.grey[300]!, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: Colors.teal, width: 2),
-                          ),
-                          hintText: 'Enter event description',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                        ),
-                      ),
-                      const SizedBox(height: 0),
-                      const Text(
-                        'Date & Time',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.teal),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: GestureDetector(
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (picked != null) {
-                                  setState(() {
-                                    date = DateTime(picked.year, picked.month,
-                                        picked.day, date.hour, date.minute);
-                                    _dateController.text =
-                                        DateFormat('MMM dd, yyyy').format(date);
-                                  });
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[50],
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: Colors.grey[300]!, width: 1),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.calendar_today,
-                                        color: Colors.grey[600], size: 18),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        _dateController.text.isNotEmpty
-                                            ? _dateController.text
-                                            : 'Select date',
-                                        style: TextStyle(
-                                          color: _dateController.text.isNotEmpty
-                                              ? Colors.black87
-                                              : Colors.grey[500],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now(),
-                                );
-                                if (time != null) {
-                                  setState(() {
-                                    date = DateTime(date.year, date.month,
-                                        date.day, time.hour, time.minute);
-                                  });
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[50],
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: Colors.grey[300]!, width: 1),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.access_time,
-                                        color: Colors.grey[600], size: 18),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        date != null
-                                            ? DateFormat('HH:mm').format(date)
-                                            : 'Time',
-                                        style: TextStyle(
-                                          color: date != null
-                                              ? Colors.black87
-                                              : Colors.grey[500],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          const Text(
-                            'Invite Contacts',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.teal),
-                          ),
-                          const Spacer(),
-                          if (_selecContacts.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.teal.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                '${_selecContacts.length} selected',
-                                style: TextStyle(
-                                  color: Colors.teal[700],
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      _availContacts.isEmpty
-                          ? GestureDetector(
-                              onTap: _loadContacts,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[50],
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: Colors.grey[300]!, width: 1),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.contacts,
-                                        color: Colors.grey[600], size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Load Contacts',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : Container(
-                              height: 100,
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                    color: Colors.grey[300]!, width: 1),
-                              ),
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: _availContacts.map((contact) {
-                                  final selected =
-                                      _selecContacts.contains(contact);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (selected) {
-                                            _selecContacts.remove(contact);
-                                          } else {
-                                            _selecContacts.add(contact);
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        width: 70,
-                                        decoration: BoxDecoration(
-                                          color: selected
-                                              ? Colors.teal.withOpacity(0.1)
-                                              : Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: selected
-                                                ? Colors.teal
-                                                : Colors.grey[300]!,
-                                            width: selected ? 2 : 1,
-                                          ),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 16,
-                                              backgroundColor: selected
-                                                  ? Colors.teal
-                                                  : Colors.grey[300],
-                                              child: Icon(
-                                                selected
-                                                    ? Icons.check
-                                                    : Icons.person,
-                                                color: selected
-                                                    ? Colors.white
-                                                    : Colors.grey[600],
-                                                size: 16,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              contact.displayName
-                                                      ?.split(' ')
-                                                      .first ??
-                                                  'Unknown',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w500,
-                                                color: selected
-                                                    ? Colors.teal[700]
-                                                    : Colors.grey[700],
-                                              ),
-                                              textAlign: TextAlign.center,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                side: BorderSide(color: Colors.grey[400]!),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 2,
-                            child: ElevatedButton.icon(
-                              icon: const Icon(Icons.event_available,
-                                  color: Colors.white, size: 18),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                textStyle: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: () {
-                                _createEvent(_selecContacts);
-                              },
-                              label: const Text('Create Event'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 100), // Bottom spacing for FAB
-              ],
+          // Modern card-based content
+          SliverPadding(
+            padding: const EdgeInsets.all(24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Event Details Card
+                _buildEventDetailsCard(),
+                const SizedBox(height: 20),
+                
+                // Date & Time Card
+                _buildDateTimeCard(),
+                const SizedBox(height: 20),
+                
+                // Invite People Card
+                _buildInvitePeopleCard(),
+                const SizedBox(height: 32),
+                
+                // Action Buttons
+                _buildActionButtons(),
+                const SizedBox(height: 100), // Bottom padding
+              ]),
             ),
           ),
         ],
@@ -599,41 +179,613 @@ class _EventCreationPageState extends State<EventCreationPage> {
     );
   }
 
-  void _createEvent(List<Contact> selecContacts) async {
-    if (_selectedGroupId == null) {
+  // Event Details Card
+  Widget _buildEventDetailsCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.edit_note_rounded,
+                  color: Color(0xFF8B5CF6),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Event Details',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D2D2D),
+                      ),
+                    ),
+                    Text(
+                      'Give your event a name and description',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (_selectedGroupName != null)
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.groups_rounded,
+                    color: Color(0xFF8B5CF6),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Group: $_selectedGroupName',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF8B5CF6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const Text(
+            'Event Title',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Color(0xFF2D2D2D),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _titleController,
+            style: const TextStyle(
+              color: Color(0xFF2D2D2D),
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              hintText: 'Enter event title...',
+              hintStyle: const TextStyle(
+                color: Color(0xFF64748B),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.2),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.2),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFF8B5CF6),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Description',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Color(0xFF2D2D2D),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _descriptionController,
+            maxLines: 3,
+            style: const TextStyle(
+              color: Color(0xFF2D2D2D),
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              hintText: 'What\'s this event about?',
+              hintStyle: const TextStyle(
+                color: Color(0xFF64748B),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.2),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.2),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFF8B5CF6),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Date & Time Card
+  Widget _buildDateTimeCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.schedule_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Date & Time',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D2D2D),
+                      ),
+                    ),
+                    Text(
+                      'When will this event happen?',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: () => _selectDateTime(context),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today_rounded,
+                    color: Color(0xFF8B5CF6),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    DateFormat('MMM dd, yyyy • hh:mm a').format(date),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D2D2D),
+                    ),
+                  ),
+                  const Spacer(),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Color(0xFF64748B),
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Invite People Card
+  Widget _buildInvitePeopleCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.people_rounded,
+                  color: Color(0xFF10B981),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Invite People',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D2D2D),
+                      ),
+                    ),
+                    Text(
+                      '${_selecContacts.length} people selected',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (_availContacts.isNotEmpty)
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _availContacts.length > 10 ? 10 : _availContacts.length,
+                itemBuilder: (context, index) {
+                  final contact = _availContacts[index];
+                  final selected = _selecContacts.contains(contact);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (selected) {
+                          _selecContacts.remove(contact);
+                        } else {
+                          _selecContacts.add(contact);
+                        }
+                      });
+                    },
+                    child: Container(
+                      width: 70,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundColor: selected
+                                ? const Color(0xFF8B5CF6)
+                                : const Color(0xFFF8FAFC),
+                            child: Icon(
+                              selected ? Icons.check : Icons.person,
+                              color: selected
+                                  ? Colors.white
+                                  : const Color(0xFF64748B),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            contact.displayName?.split(' ').first ?? 'Unknown',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: selected
+                                  ? const Color(0xFF8B5CF6)
+                                  : const Color(0xFF64748B),
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Action Buttons
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              side: const BorderSide(
+                color: Color(0xFF64748B),
+                width: 1,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 2,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFFF59E0B), // Warm Orange - Energy & action
+                  Color(0xFFFF8A00), // Slightly deeper orange
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFF59E0B).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: ElevatedButton.icon(
+              icon: const Icon(
+                Icons.event_available_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              onPressed: () => _createEvent(_selecContacts),
+              label: const Text('Create Event'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _selectDateTime(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: date,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF8B5CF6),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Color(0xFF2D2D2D),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(date),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Color(0xFF8B5CF6),
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Color(0xFF2D2D2D),
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          date = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
+  }
+
+  void _createEvent(List<Contact> contacts) async {
+    if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No group selected.')),
+        const SnackBar(
+          content: Text('Please enter an event title'),
+          backgroundColor: Color(0xFFEF4444),
+        ),
       );
       return;
     }
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    final id = FirebaseFirestore.instance
-        .collection('groups')
-        .doc(_selectedGroupId)
-        .collection('events')
-        .doc()
-        .id;
-    final title = _titleController.text;
-    final host = user.displayName ?? user.email ?? '';
-    final hostProfileUrl = user.photoURL ?? '';
-    final location = ''; // You may want to add location input
-    final description = _descriptionController.text;
-    final invitationStatus = <String, String>{
-      for (var c in selecContacts) c.id: 'pending'
-    };
-    controller.createEvent(
-      id: id,
-      title: title,
-      host: host,
-      hostProfileUrl: hostProfileUrl,
-      location: location,
-      dateTime: date,
-      attendees: selecContacts,
-      groupId: _selectedGroupId!,
-      invitationStatus: invitationStatus,
-      description: description,
-    );
-    Navigator.pop(context);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Create invitation status map
+      final Map<String, String> invitationStatus = {user.uid: 'accepted'};
+      
+      // Add contacts to invitation status
+      for (final contact in contacts) {
+        if (contact.emails.isNotEmpty) {
+          invitationStatus[contact.emails.first.address] = 'pending';
+        }
+      }
+
+      final eventData = {
+        'title': _titleController.text,
+        'description': _descriptionController.text,
+        'dateTime': Timestamp.fromDate(date),
+        'host': user.displayName ?? user.email,
+        'hostId': user.uid,
+        'groupId': _selectedGroupId,
+        'invitationStatus': invitationStatus,
+        'createdAt': Timestamp.now(),
+      };
+
+      await FirebaseFirestore.instance.collection('events').add(eventData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Event created successfully!'),
+          backgroundColor: Color(0xFF10B981),
+        ),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error creating event: $e'),
+          backgroundColor: const Color(0xFFEF4444),
+        ),
+      );
+    }
   }
 }

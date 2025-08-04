@@ -55,10 +55,11 @@ class _SplashScreenState extends State<SplashScreen> {
                     TypewriterAnimatedText(
                       "Huddle",
                       textStyle: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Montserrat"),
+                        color: Colors.grey.shade600,
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Montserrat",
+                      ),
                       speed: const Duration(milliseconds: 250),
                     ),
                   ],

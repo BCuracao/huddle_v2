@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huddle/features/app/model/event.dart' as app_event;
 import 'package:huddle/features/app/presentation/widgets/global_bottom_app_bar_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:huddle/features/app/presentation/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -103,6 +104,7 @@ class _HomePageState extends State<HomePage> {
                 floating: false,
                 pinned: true,
                 backgroundColor: Colors.transparent,
+                automaticallyImplyLeading: false,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     decoration: const BoxDecoration(
@@ -206,16 +208,23 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              // Events List
-              SliverPadding(
-                padding: const EdgeInsets.all(16.0),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+              // Tinder-Style Event Swiper
+              SliverFillRemaining(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CardSwiper(
+                    cardsCount: events.length,
+                    numberOfCardsDisplayed: 3,
+                    backCardOffset: const Offset(30, 0),
+                    padding: EdgeInsets.zero,
+                    cardBuilder: (context, index, _, __) {
                       final event = events[index];
-                      return _buildModernEventCard(event, index);
+                      return _buildSwipeableEventCard(event, index);
                     },
-                    childCount: events.length,
+                    onSwipe: (previousIndex, currentIndex, direction) {
+                      // Optional: Handle swipe actions
+                      return true;
+                    },
                   ),
                 ),
               ),
@@ -269,8 +278,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Modern Event Card
-  Widget _buildModernEventCard(app_event.Event event, int index) {
+  // Swipeable Modern Event Card
+  Widget _buildSwipeableEventCard(app_event.Event event, int index) {
     final status = event.host == _userDisplayName
         ? 'host'
         : event.invitationStatus[_userId] ?? 'pending';
@@ -310,14 +319,15 @@ class _HomePageState extends State<HomePage> {
     final totalInvited = event.invitationStatus.length;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(20),
+        elevation: 8,
+        borderRadius: BorderRadius.circular(24),
         child: Container(
+          height: 400, // Fixed height for consistent swiping
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: Colors.grey.withOpacity(0.1),
               width: 1,
@@ -328,7 +338,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               // Header with gradient
               Container(
-                height: 120,
+                height: 140,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -339,8 +349,8 @@ class _HomePageState extends State<HomePage> {
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
                   ),
                 ),
                 child: Padding(

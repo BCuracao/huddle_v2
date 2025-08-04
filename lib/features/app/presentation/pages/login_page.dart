@@ -66,61 +66,94 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          const Color(0xFFF8FAFC), // Clean background like home page
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: Color(0xFFF8FAFC), // Clean background
         ),
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Hero image
+                  // Hero section with modern gradient
                   Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
-                          Colors.tealAccent[400]!,
-                          const Color.fromARGB(255, 255, 255, 255),
+                          Color(0xFF1E3A8A), // Deep Blue - Trust & reliability
+                          Color(0xFF8B5CF6), // Soft Purple - Social connection
                         ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(128),
-                        bottomRight: Radius.circular(128),
-                      ),
+                      borderRadius:
+                          BorderRadius.circular(32), // Modern organic curves
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1E3A8A).withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                    height: 275,
-                    width: 275,
+                    height: 350,
+                    width: double.infinity,
                     margin: const EdgeInsets.only(bottom: 24),
-                    child: Image.asset(
-                      'assets/images/huddle_login_1.png',
-                      fit: BoxFit.contain,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Restore the original image with modern styling
+                          Container(
+                            width: 300,
+                            height: 300,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.asset(
+                                'assets/images/huddle_login_1.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Connect • Plan • Celebrate',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.9),
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Text(
-                    'Huddle up!',
+                    'Welcome Back!',
                     style: theme.textTheme.headlineMedium?.copyWith(
-                      color: const Color(0xFF3facaf),
+                      color: const Color(0xFF2D2D2D), // Modern dark text
                       fontWeight: FontWeight.bold,
+                      fontSize: 28,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sign in to continue',
+                    'Sign in to your account',
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: Colors.black54,
+                      color:
+                          const Color(0xFF64748B), // Slate grey like home page
+                      fontSize: 16,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 40),
                   FormContainerWidget(
                     controller: _emailController,
                     hintText: 'Email',
@@ -143,52 +176,68 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       child: Text(
                         'Forgot password?',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
+                          color: const Color(
+                              0xFF8B5CF6), // Purple accent like home page
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 32),
                   GestureDetector(
                     onTap: _isLoading ? null : _signIn,
                     child: Container(
                       width: double.infinity,
-                      height: 50,
+                      height: 56,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: const Color(0xFFffbf84),
+                        borderRadius:
+                            BorderRadius.circular(24), // Modern organic curves
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFF59E0B), // Warm Orange - Energy & action
+                            Color(0xFFFF8A00), // Slightly deeper orange
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            color: const Color(0xFFF59E0B).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
                       child: Center(
                         child: _isLoading
                             ? const CircularProgressIndicator(
-                                color: Colors.white)
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              )
                             : Text(
-                                'Login',
+                                'Sign In',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.1,
+                                  fontSize: 18,
+                                  letterSpacing: 0.8,
                                 ),
                               ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         'Don\'t have an account?',
-                        style: theme.textTheme.bodyMedium
-                            ?.copyWith(color: Colors.black54),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: const Color(
+                              0xFF64748B), // Slate grey like home page
+                          fontSize: 15,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
@@ -204,8 +253,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         child: Text(
                           'Sign Up',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.black54,
+                            color: const Color(0xFF8B5CF6), // Purple accent
                             fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
                         ),
                       ),

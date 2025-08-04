@@ -37,11 +37,26 @@ class _FormContainerWidgetState extends State<FormContainerWidget> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(.35),
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24), // Modern organic curves
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withOpacity(0.2), // Subtle purple border
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: TextFormField(
-        style: const TextStyle(color: Colors.blue),
+        style: const TextStyle(
+          color: Color(0xFF2D2D2D), // Modern dark text
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
         controller: widget.controller,
         keyboardType: widget.inputType,
         key: widget.fieldKey,
@@ -51,23 +66,32 @@ class _FormContainerWidgetState extends State<FormContainerWidget> {
         onFieldSubmitted: widget.onFieldSubmitted,
         decoration: InputDecoration(
           border: InputBorder.none,
-          filled: true,
-          fillColor: Color.fromARGB(255, 91, 252, 255).withOpacity(0.25),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Colors.black45),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              setState(() {
-                _obscureText = !_obscureText;
-              });
-            },
-            child: widget.isPasswordField == true
-                ? Icon(
-                    _obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: _obscureText == false ? Colors.blue : Colors.grey,
-                  )
-                : const Text(""),
+          hintStyle: const TextStyle(
+            color: Color(0xFF64748B), // Slate grey like home page
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
           ),
+          suffixIcon: widget.isPasswordField == true
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      _obscureText ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                      color: _obscureText == false 
+                          ? const Color(0xFF8B5CF6) // Purple when visible
+                          : const Color(0xFF64748B), // Slate grey when hidden
+                      size: 20,
+                    ),
+                  ),
+                )
+              : null,
         ),
       ),
     );
