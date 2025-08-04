@@ -60,7 +60,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     _selectedGroupId = args != null ? args['groupId'] as String? : null;
     _selectedGroupName = args != null ? args['groupName'] as String? : null;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
@@ -82,6 +82,10 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
                   ),
                 ),
                 child: SafeArea(
@@ -109,7 +113,8 @@ class _EventCreationPageState extends State<EventCreationPage> {
                             ),
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(20),
@@ -159,15 +164,15 @@ class _EventCreationPageState extends State<EventCreationPage> {
                 // Event Details Card
                 _buildEventDetailsCard(),
                 const SizedBox(height: 20),
-                
+
                 // Date & Time Card
                 _buildDateTimeCard(),
                 const SizedBox(height: 20),
-                
+
                 // Invite People Card
                 _buildInvitePeopleCard(),
                 const SizedBox(height: 32),
-                
+
                 // Action Buttons
                 _buildActionButtons(),
                 const SizedBox(height: 100), // Bottom padding
@@ -544,7 +549,8 @@ class _EventCreationPageState extends State<EventCreationPage> {
               height: 100,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: _availContacts.length > 10 ? 10 : _availContacts.length,
+                itemCount:
+                    _availContacts.length > 10 ? 10 : _availContacts.length,
                 itemBuilder: (context, index) {
                   final contact = _availContacts[index];
                   final selected = _selecContacts.contains(contact);
@@ -750,7 +756,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
 
       // Create invitation status map
       final Map<String, String> invitationStatus = {user.uid: 'accepted'};
-      
+
       // Add contacts to invitation status
       for (final contact in contacts) {
         if (contact.emails.isNotEmpty) {

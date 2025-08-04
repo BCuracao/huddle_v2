@@ -33,11 +33,11 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.tealAccent[400]!,
-              const Color.fromARGB(255, 122, 255, 222),
+              Color(0xFF1E3A8A), // Deep Blue - Trust & reliability
+              Color(0xFF8B5CF6), // Soft Purple - Social connection
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -54,11 +54,12 @@ class _SplashScreenState extends State<SplashScreen> {
                   animatedTexts: [
                     TypewriterAnimatedText(
                       "Huddle",
-                      textStyle: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 36,
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
                         fontWeight: FontWeight.bold,
                         fontFamily: "Montserrat",
+                        letterSpacing: 1.2,
                       ),
                       speed: const Duration(milliseconds: 250),
                     ),
