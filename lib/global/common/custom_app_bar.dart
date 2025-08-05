@@ -31,10 +31,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: titleWidget ??
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: const Color.fromARGB(255, 61, 168, 173),
+                      color: Color.fromARGB(255, 61, 168, 173),
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -47,14 +47,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Transform.translate(
                       offset: const Offset(-14, 0),
                       child: IconButton(
-                        icon: Icon(Icons.history,
-                            color: const Color.fromARGB(255, 61, 168, 173),
-                            size: 28),
+                        icon: const Icon(Icons.history,
+                            color: Color.fromARGB(255, 61, 168, 173), size: 28),
                         onPressed: onActivityTap ??
                             () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => ActivityPage(),
+                                  builder: (context) => const ActivityPage(),
                                 ),
                               );
                             },
@@ -67,16 +66,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => ProfilePage(),
+                        builder: (context) => const ProfilePage(),
                       ),
                     );
                   },
                   child: CircleAvatar(
                     radius: 19,
                     backgroundColor: Colors.tealAccent.withOpacity(0.2),
-                    child: Icon(
+                    child: const Icon(
                       Icons.person,
-                      color: const Color.fromARGB(255, 61, 168, 173),
+                      color: Color.fromARGB(255, 61, 168, 173),
                     ),
                   ),
                 ),

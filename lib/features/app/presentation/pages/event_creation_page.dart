@@ -584,7 +584,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            contact.displayName?.split(' ').first ?? 'Unknown',
+                            contact.displayName.split(' ').first ?? 'Unknown',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,

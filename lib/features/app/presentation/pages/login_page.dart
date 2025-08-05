@@ -112,7 +112,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           // Restore the original image with modern styling
-                          Container(
+                          SizedBox(
                             width: 300,
                             height: 300,
                             child: ClipRRect(

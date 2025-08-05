@@ -3,7 +3,6 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huddle/features/app/model/event.dart';
-import 'package:huddle/features/app/presentation/pages/event_details_page.dart';
 import 'package:huddle/features/app/presentation/widgets/global_bottom_app_bar_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -195,9 +194,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       firstDay: DateTime.utc(2020, 1, 1),
                       lastDay: DateTime.utc(2100, 12, 31),
                       focusedDay: _focusedDay,
-                      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                      selectedDayPredicate: (day) =>
+                          isSameDay(_selectedDay, day),
                       eventLoader: (day) =>
-                          _eventsByDay[DateTime(day.year, day.month, day.day)] ??
+                          _eventsByDay[
+                              DateTime(day.year, day.month, day.day)] ??
                           [],
                       onDaySelected: (selectedDay, focusedDay) {
                         setState(() {
@@ -441,14 +442,14 @@ class _CalendarPageState extends State<CalendarPage> {
             final index = entry.key;
             final event = entry.value;
             final isLast = index == events.length - 1;
-            
+
             // Determine event status color
             final user = FirebaseAuth.instance.currentUser;
             final userId = user?.uid ?? '';
             final status = event.host == user?.displayName
                 ? 'host'
                 : event.invitationStatus[userId] ?? 'pending';
-            
+
             Color statusColor;
             IconData statusIcon;
             switch (status) {
@@ -468,7 +469,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 statusColor = const Color(0xFF64748B);
                 statusIcon = Icons.hourglass_empty_rounded;
             }
-            
+
             return Container(
               margin: EdgeInsets.fromLTRB(24, 0, 24, isLast ? 24 : 16),
               padding: const EdgeInsets.all(20),
