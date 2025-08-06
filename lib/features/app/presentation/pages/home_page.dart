@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huddle/features/app/model/event.dart' as app_event;
-import 'package:huddle/features/app/presentation/widgets/global_bottom_app_bar_widget.dart';
+
 import 'package:intl/intl.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:huddle/features/app/presentation/pages/profile_page.dart';
@@ -62,18 +62,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // Modern clean background
       extendBodyBehindAppBar: true,
-      bottomNavigationBar: const GlobalBottomAppBarWidget(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed("/events");
-        },
-        backgroundColor: Colors.transparent,
-        shape: const CircleBorder(),
-        elevation: 12,
-        child: Image.asset(
-          "assets/images/icons/icon_app_icon.png",
-        ),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: StreamBuilder<List<app_event.Event>>(
         stream: _eventsStream(onGroupIds: (ids) => _lastQueriedGroupIds = ids),

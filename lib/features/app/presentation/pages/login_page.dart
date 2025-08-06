@@ -291,7 +291,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     });
     showToast(message: 'User is successfully signedIn');
     if (!mounted) return;
-    Navigator.pushNamed(context, '/home', arguments: _preloadedEvents);
+    Navigator.pushNamed(context, '/main', arguments: _preloadedEvents);
     setState(() {
       _isLoading = false;
     });

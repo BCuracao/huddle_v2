@@ -3,7 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huddle/features/app/model/event.dart';
-import 'package:huddle/features/app/presentation/widgets/global_bottom_app_bar_widget.dart';
+
 import 'package:intl/intl.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -34,18 +34,6 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     final userId = user.uid;
     return Scaffold(
-      bottomNavigationBar: const GlobalBottomAppBarWidget(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed("/events");
-        },
-        backgroundColor: Colors.transparent,
-        shape: const CircleBorder(),
-        elevation: 12,
-        child: Image.asset(
-          "assets/images/icons/icon_app_icon.png",
-        ),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: CustomScrollView(
         slivers: [

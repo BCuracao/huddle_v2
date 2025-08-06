@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:huddle/features/app/presentation/pages/contacts_selector.dart';
 import 'package:huddle/features/app/presentation/pages/event_creation_page.dart';
-import 'package:huddle/features/app/presentation/pages/group_viewer.dart';
-import 'package:huddle/features/app/splash_screen/splash_screen.dart';
-import 'package:huddle/features/app/presentation/pages/home_page.dart';
-import 'package:huddle/features/app/presentation/pages/login_page.dart';
 import 'package:huddle/features/app/presentation/pages/notifications_page.dart';
-import 'package:huddle/features/app/presentation/pages/calendar_page.dart';
-import 'package:huddle/features/app/presentation/pages/edit_events_page.dart'; // Assuming this is where EditEventsPage is located
+import 'package:huddle/features/app/splash_screen/splash_screen.dart';
+import 'package:huddle/features/app/presentation/pages/login_page.dart';
+import 'package:huddle/features/app/presentation/widgets/main_navigation_controller.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -35,14 +32,11 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: "/",
         routes: {
-          "/home": (context) => const HomePage(),
+          "/main": (context) => const MainNavigationController(),
           "/login": (context) => const LoginPage(),
-          "/groups": (context) => const GroupViewer(),
           "/events": (context) => const EventCreationPage(),
           "/contacts": (context) => const ContactsSelector(),
           "/notifications": (context) => const NotificationsPage(),
-          "/calendar": (context) => const CalendarPage(),
-          "/edit_event": (context) => const EditEventsPage(),
         },
         title: "Flutter Firebase",
         home: const SplashScreen(

@@ -3,24 +3,19 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class GroupEditPage extends StatefulWidget {
-  final String groupId;
-  final String initialGroupName;
-  final List<Contact> initialContacts;
-  const GroupEditPage(
-      {super.key,
-      required this.groupId,
-      required this.initialGroupName,
-      required this.initialContacts});
+class GroupCreationPage extends StatefulWidget {
+  const GroupCreationPage({super.key});
 
   @override
-  State<GroupEditPage> createState() => _GroupEditPageState();
+  State<GroupCreationPage> createState() => _GroupCreationPageState();
 }
 
-class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateMixin {
+class _GroupCreationPageState extends State<GroupCreationPage> with TickerProviderStateMixin {
   late TextEditingController _nameController;
-  late List<Contact> _selectedContacts;
-  bool _isSaving = false;
+  List<Contact> _selectedContacts = [];
+  List<Contact> _allContacts = [];
+  bool _isCreating = false;
+  bool _isLoadingContacts = true;
   
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -30,8 +25,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.initialGroupName);
-    _selectedContacts = List<Contact>.from(widget.initialContacts);
+    _nameController = TextEditingController();
     
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -60,6 +54,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
     
     _fadeController.forward();
     _slideController.forward();
+    _loadContacts();
   }
 
   @override
@@ -70,7 +65,27 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
     super.dispose();
   }
 
-  Future<void> _saveEdits() async {
+  Future<void> _loadContacts() async {
+    try {
+      if (await FlutterContacts.requestPermission()) {
+        final contacts = await FlutterContacts.getContacts(withProperties: true);
+        setState(() {
+          _allContacts = contacts;
+          _isLoadingContacts = false;
+        });
+      } else {
+        setState(() {
+          _isLoadingContacts = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoadingContacts = false;
+      });
+    }
+  }
+
+  Future<void> _createGroup() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -81,36 +96,32 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
       return;
     }
 
-    setState(() => _isSaving = true);
+    setState(() => _isCreating = true);
     final userId = FirebaseAuth.instance.currentUser!.uid;
+    
     try {
-      // Update group name
-      await FirebaseFirestore.instance
+      // Create the group document
+      final groupRef = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('groups')
-          .doc(widget.groupId)
-          .update({'groupName': _nameController.text.trim()});
-      
-      // Update contacts (for simplicity, remove all and re-add)
-      final contactsRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('groups')
-          .doc(widget.groupId)
-          .collection('contacts');
-      final contactsSnap = await contactsRef.get();
-      for (final doc in contactsSnap.docs) {
-        await doc.reference.delete();
-      }
+          .add({
+        'groupName': _nameController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Add selected contacts to the group
       for (final contact in _selectedContacts) {
-        await contactsRef.add({'contact': contact.displayName});
+        await groupRef.collection('contacts').add({
+          'contact': contact.displayName,
+          'addedAt': FieldValue.serverTimestamp(),
+        });
       }
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Group updated successfully!'),
+            content: Text('Group created successfully!'),
             backgroundColor: Color(0xFF10B981),
           ),
         );
@@ -120,14 +131,23 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update group: $e'),
+            content: Text('Failed to create group: $e'),
             backgroundColor: const Color(0xFFEF4444),
           ),
         );
       }
     } finally {
-      setState(() => _isSaving = false);
+      setState(() => _isCreating = false);
     }
+  }
+
+  void _showContactPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _buildContactPickerModal(),
+    );
   }
 
   @override
@@ -144,7 +164,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
               slivers: [
                 _buildModernHeader(),
                 _buildGroupForm(),
-                _buildMembersList(),
+                _buildSelectedContactsList(),
                 _buildActionButtons(),
               ],
             ),
@@ -226,7 +246,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Icon(
-                            Icons.edit_rounded,
+                            Icons.group_add_rounded,
                             color: Colors.white,
                             size: 28,
                           ),
@@ -237,7 +257,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Edit Group',
+                                'Create New Group',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 26,
@@ -247,7 +267,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'Customize your group settings',
+                                'Build your community',
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 14,
@@ -306,7 +326,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                   ),
                   const SizedBox(width: 12),
                   const Text(
-                    'Group Information',
+                    'Group Details',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -320,8 +340,13 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Group Name',
+                  hintText: 'Enter a name for your group',
                   labelStyle: TextStyle(
                     color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                  hintStyle: TextStyle(
+                    color: Colors.grey[400],
                     fontSize: 14,
                   ),
                   border: OutlineInputBorder(
@@ -347,6 +372,40 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                   color: Color(0xFF2D2D2D),
                 ),
               ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoadingContacts ? null : _showContactPicker,
+                      icon: _isLoadingContacts
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.person_add_rounded),
+                      label: Text(_isLoadingContacts ? 'Loading...' : 'Add Members'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        elevation: 4,
+                        shadowColor: const Color(0xFF10B981).withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -354,7 +413,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
     );
   }
 
-  Widget _buildMembersList() {
+  Widget _buildSelectedContactsList() {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -389,7 +448,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                 ),
                 const SizedBox(width: 12),
                 const Text(
-                  'Group Members',
+                  'Selected Members',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -444,7 +503,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
           ),
           const SizedBox(height: 16),
           Text(
-            'No Members Yet',
+            'No Members Added Yet',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -453,7 +512,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
           ),
           const SizedBox(height: 8),
           Text(
-            'Add contacts to start building your group',
+            'Tap "Add Members" to invite contacts to your group',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -524,7 +583,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Group Member',
+                          'New Member',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -564,7 +623,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: _isSaving ? null : _saveEdits,
+                onPressed: _isCreating ? null : _createGroup,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B5CF6),
                   foregroundColor: Colors.white,
@@ -575,7 +634,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                   ),
                   disabledBackgroundColor: Colors.grey[300],
                 ),
-                child: _isSaving
+                child: _isCreating
                     ? const SizedBox(
                         width: 24,
                         height: 24,
@@ -587,10 +646,10 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
                     : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.save_rounded, size: 20),
+                          Icon(Icons.group_add_rounded, size: 20),
                           SizedBox(width: 8),
                           Text(
-                            'Save Changes',
+                            'Create Group',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -605,7 +664,7 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
               width: double.infinity,
               height: 48,
               child: TextButton(
-                onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+                onPressed: _isCreating ? null : () => Navigator.of(context).pop(),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.grey[600],
                   shape: RoundedRectangleBorder(
@@ -624,6 +683,133 @@ class _GroupEditPageState extends State<GroupEditPage> with TickerProviderStateM
             const SizedBox(height: 32), // Bottom padding
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildContactPickerModal() {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1E3A8A), Color(0xFF8B5CF6)],
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.contacts_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Select Contacts',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _allContacts.length,
+              itemBuilder: (context, index) {
+                final contact = _allContacts[index];
+                final isSelected = _selectedContacts.contains(contact);
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF8B5CF6).withOpacity(0.1) : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFF8B5CF6) : Colors.grey[200]!,
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: isSelected 
+                            ? const LinearGradient(colors: [Color(0xFF1E3A8A), Color(0xFF8B5CF6)])
+                            : LinearGradient(colors: [Colors.grey[400]!, Colors.grey[500]!]),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          contact.displayName != null && contact.displayName!.isNotEmpty
+                              ? contact.displayName![0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      contact.displayName ?? 'Unknown Contact',
+                      style: TextStyle(
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected ? const Color(0xFF8B5CF6) : const Color(0xFF2D2D2D),
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF8B5CF6),
+                          )
+                        : const Icon(
+                            Icons.add_circle_outline,
+                            color: Colors.grey,
+                          ),
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedContacts.remove(contact);
+                        } else {
+                          _selectedContacts.add(contact);
+                        }
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
